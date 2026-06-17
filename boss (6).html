@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дюнер Мастър – Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#e84118;--red2:#c73510;--red-dim:rgba(232,65,24,0.15);
+  --orange:#f0a500;--green:#2ed573;--blue:#4a9eff;
+  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
+  --text:#f0ede8;--text2:#888;--text3:#444;
+  --border:rgba(255,255,255,0.07);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;min-height:100vh;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;bottom:0;z-index:100;
+  transition:transform 0.3s;
+}
+.sb-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sb-logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fff;letter-spacing:0.05em}
+.sb-logo-text span{color:var(--red)}
+.sb-logo-sub{font-size:0.72rem;color:var(--text2);margin-top:2px}
+.sb-nav{flex:1;padding:12px 0;overflow-y:auto}
+.sb-section{font-size:0.65rem;font-weight:700;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;padding:10px 20px 4px}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;
+  color:var(--text2);font-weight:700;font-size:0.85rem;
+  transition:color 0.2s,background 0.2s;border:none;background:none;
+  width:100%;text-align:left;
+}
+.sb-item:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.sb-item.active{color:#fff;background:rgba(232,65,24,0.12);border-right:2px solid var(--red)}
+.sb-item .si-icon{font-size:1rem;width:20px;text-align:center}
+.sb-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.sb-user{font-size:0.8rem;color:var(--text2);margin-bottom:8px}
+.sb-user strong{color:#fff;display:block}
+.sb-logout{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text2);font-size:0.78rem;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;width:100%;transition:border-color 0.2s,color 0.2s}
+.sb-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.top-bar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:99;
+}
+.top-bar-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;letter-spacing:0.04em}
+.top-bar-right{display:flex;align-items:center;gap:12px}
+.notif-btn{
+  width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1rem;position:relative;
+}
+.notif-dot{width:8px;height:8px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:6px;border:1.5px solid var(--bg2)}
+.date-display{font-size:0.8rem;color:var(--text2)}
+
+/* ── PAGES ── */
+.page{display:none;padding:24px;flex:1}
+.page.active{display:block}
+
+/* ── KPI CARDS ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:18px;position:relative;overflow:hidden;
+  transition:border-color 0.2s,transform 0.2s;
+}
+.kpi-card:hover{border-color:rgba(255,255,255,0.12);transform:translateY(-1px)}
+.kpi-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:0.06;pointer-events:none}
+.kpi-card.green::before{background:var(--green)}
+.kpi-card.red::before{background:var(--red)}
+.kpi-card.blue::before{background:var(--blue)}
+.kpi-card.orange::before{background:var(--orange)}
+.kpi-label{font-size:0.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.02em;line-height:1;color:#fff}
+.kpi-card.green .kpi-val{color:var(--green)}
+.kpi-card.red .kpi-val{color:var(--red)}
+.kpi-card.blue .kpi-val{color:var(--blue)}
+.kpi-card.orange .kpi-val{color:var(--orange)}
+.kpi-sub{font-size:0.72rem;color:var(--text2);margin-top:4px}
+.kpi-section-label{font-size:0.7rem;font-weight:700;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;margin-top:4px}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.chart-title{font-weight:800;font-size:0.9rem;color:#fff;margin-bottom:14px}
+.chart-wrap{position:relative;height:200px}
+
+/* ── TABLES ── */
+.page-section{margin-bottom:24px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#fff;letter-spacing:0.04em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.2s}
+.filter-btn.active{background:var(--red);border-color:var(--red);color:#fff}
+.search-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;min-width:200px;transition:border-color 0.2s}
+.search-input:focus{border-color:rgba(255,255,255,0.2)}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:0.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.data-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;color:var(--text)}
+.data-table tr:hover td{background:rgba(255,255,255,0.02);cursor:pointer}
+.data-table tr:last-child td{border-bottom:none}
+.status-badge{padding:3px 10px;border-radius:100px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em}
+.s-new{background:rgba(232,65,24,0.2);color:var(--red)}
+.s-done{background:rgba(46,213,115,0.15);color:var(--green)}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;overflow-x:auto}
+.empty-state{text-align:center;padding:40px;color:var(--text2);font-size:0.9rem}
+
+/* ── FINANCE ── */
+.finance-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.finance-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.fc-title{font-weight:800;font-size:0.9rem;color:#fff;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.fc-add-btn{background:var(--red-dim);border:1px solid rgba(232,65,24,0.3);border-radius:8px;padding:4px 12px;font-size:0.75rem;font-weight:700;color:var(--red);cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.2s}
+.fc-add-btn:hover{background:rgba(232,65,24,0.25)}
+.expense-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
+.expense-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:10px;gap:8px}
+.ei-info{flex:1;min-width:0}
+.ei-desc{font-weight:700;font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ei-meta{font-size:0.72rem;color:var(--text2);margin-top:1px}
+.ei-amount{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--red);white-space:nowrap}
+.ei-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:2px 6px;border-radius:4px;transition:color 0.2s}
+.ei-del:hover{color:var(--red)}
+.cat-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:var(--bg4);color:var(--text2);margin-top:2px}
+.profit-display{text-align:center;padding:24px;background:var(--bg3);border-radius:12px;margin-top:14px}
+.profit-label{font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.profit-val{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.02em;line-height:1}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;letter-spacing:0.04em;margin-bottom:20px}
+.form-group{margin-bottom:12px}
+.form-label{display:block;font-size:0.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.form-input:focus,.form-select:focus{border-color:rgba(255,255,255,0.2)}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.btn-primary{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;flex:1;transition:background 0.2s}
+.btn-primary:hover{background:var(--red2)}
+.btn-cancel{background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:background 0.2s}
+
+/* ── EMPLOYEES ── */
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.emp-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color 0.2s}
+.emp-card:hover{border-color:rgba(255,255,255,0.12)}
+.emp-avatar{width:44px;height:44px;border-radius:50%;background:var(--red-dim);border:1px solid rgba(232,65,24,0.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px}
+.emp-name{font-weight:800;font-size:1rem;color:#fff;margin-bottom:2px}
+.emp-role{font-size:0.75rem;color:var(--text2);margin-bottom:12px}
+.emp-stat{display:flex;justify-content:space-between;font-size:0.8rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.emp-stat:last-child{border-bottom:none}
+.emp-stat-label{color:var(--text2)}
+.emp-stat-val{font-weight:700;color:#fff}
+
+/* ── NOTIFICATIONS ── */
+.notif-panel{position:fixed;top:60px;right:20px;width:320px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;z-index:300;display:none;max-height:400px;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.notif-panel.open{display:block}
+.notif-header{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:800;font-size:0.9rem;color:#fff}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.notif-item:last-child{border-bottom:none}
+.ni-icon{font-size:1.1rem;line-height:1;margin-top:1px}
+.ni-text{font-size:0.82rem;color:var(--text2);line-height:1.5}
+.ni-text strong{color:#fff;display:block;font-size:0.85rem}
+.ni-time{font-size:0.7rem;color:var(--text3);margin-top:2px}
+
+/* ── ORDER DETAIL ── */
+.order-detail-items{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.odi-row{display:flex;justify-content:space-between;font-size:0.85rem;padding:6px 0;border-bottom:1px solid var(--border)}
+.odi-row:last-child{border-bottom:none}
+
+/* ── ANALYTICS ── */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.analytics-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.top-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.top-item{display:flex;align-items:center;gap:10px}
+.top-rank{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--text3);width:20px}
+.top-bar-bg{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.top-bar-fill{height:100%;background:var(--red);border-radius:3px;transition:width 0.5s}
+.top-name{font-size:0.8rem;color:var(--text2);min-width:80px}
+.top-count{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;min-width:30px;text-align:right}
+
+/* TOAST */
+.boss-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2ed573;color:#000;padding:10px 20px;border-radius:100px;font-weight:800;font-size:0.85rem;z-index:800;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.boss-toast.show{opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  body{flex-direction:column}
+  .sidebar{display:none}
+  .main{margin-left:0;padding-bottom:70px}
+  .charts-row,.finance-grid,.analytics-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .top-bar{padding:10px 14px}
+  .top-bar-title{font-size:1.1rem}
+  .page{padding:12px}
+  .modal{padding:20px 16px}
+  .emp-grid{grid-template-columns:1fr}
+  .summary-cards{grid-template-columns:repeat(3,1fr)}
+  .data-table th,.data-table td{padding:8px 8px;font-size:0.78rem}
+
+  /* Mobile bottom nav */
+  .mobile-nav{
+    display:flex !important;
+    position:fixed;bottom:0;left:0;right:0;z-index:200;
+    background:rgba(17,17,17,0.97);backdrop-filter:blur(16px);
+    border-top:1px solid var(--border);
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  .mn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    gap:3px;cursor:pointer;padding:4px;
+    background:none;border:none;color:var(--text2);
+    font-family:'Nunito',sans-serif;font-size:0.6rem;font-weight:700;
+    transition:color 0.2s;
+  }
+  .mn-item.active{color:var(--red)}
+  .mn-icon{font-size:1.3rem;line-height:1}
+}
+
+@media(min-width:901px){
+  .mobile-nav{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="boss-toast" id="bossToast"></div>
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-text">ДЮНЕР <span>МАСТЪР</span></div>
+    <div class="sb-logo-sub">Owner Dashboard</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Главни</div>
+    <button class="sb-item active" onclick="showPage('dashboard',this)"><span class="si-icon">📊</span>Dashboard</button>
+    <button class="sb-item" onclick="showPage('orders',this)"><span class="si-icon">📋</span>Поръчки</button>
+    <div class="sb-section">Финанси</div>
+    <button class="sb-item" onclick="showPage('finance',this)"><span class="si-icon">💰</span>Финанси</button>
+    <button class="sb-item" onclick="showPage('analytics',this)"><span class="si-icon">📈</span>Анализ</button>
+    <div class="sb-section">Екип</div>
+    <button class="sb-item" onclick="showPage('employees',this)"><span class="si-icon">👥</span>Служители</button>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user">Влязъл като<strong>👑 Лука</strong></div>
+    <button class="sb-logout" onclick="doLogout()">Изход</button>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="top-bar">
+    <div class="top-bar-title" id="pageTitle">Dashboard</div>
+    <div class="top-bar-right">
+      <div class="date-display" id="dateDisplay"></div>
+      <div class="notif-btn" onclick="toggleNotif()">🔔<span class="notif-dot" id="notifDot"></span></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS PANEL -->
+  <div class="notif-panel" id="notifPanel">
+    <div class="notif-header">🔔 Известия</div>
+    <div id="notifList"><div class="empty-state">Няма известия</div></div>
+  </div>
+
+  <!-- ════ DASHBOARD ════ -->
+  <div class="page active" id="page-dashboard">
+    <div class="kpi-section-label">Днес</div>
+    <div class="kpi-row">
+      <div class="kpi-card green"><div class="kpi-label">Оборот днес</div><div class="kpi-val" id="kpi-rev-today">€0</div><div class="kpi-sub">от смени</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Поръчки днес</div><div class="kpi-val" id="kpi-ord-today">0</div><div class="kpi-sub">онлайн поръчки</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Приход онлайн</div><div class="kpi-val" id="kpi-online-today">€0</div><div class="kpi-sub">от онлайн</div></div>
+    </div>
+    <div class="kpi-section-label">Тази седмица</div>
+    <div class="kpi-row">
+      <div class="kpi-card green"><div class="kpi-label">Оборот</div><div class="kpi-val" id="kpi-rev-week">€0</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Поръчки</div><div class="kpi-val" id="kpi-ord-week">0</div></div>
+    </div>
+    <div class="kpi-section-label">Този месец</div>
+    <div class="kpi-row">
+      <div class="kpi-card green"><div class="kpi-label">Оборот</div><div class="kpi-val" id="kpi-rev-month">€0</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Разходи</div><div class="kpi-val" id="kpi-exp-month">€0</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Чиста печалба</div><div class="kpi-val" id="kpi-profit-month">€0</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Поръчки</div><div class="kpi-val" id="kpi-ord-month">0</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">📈 Оборот последните 30 дни</div>
+        <div class="chart-wrap"><canvas id="chartRevenue"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">⏰ Поръчки по часове</div>
+        <div class="chart-wrap"><canvas id="chartHours"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🏆 Най-продавани продукти</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="chartProducts"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ ORDERS ════ -->
+  <div class="page" id="page-orders">
+    <div class="filters-bar">
+      <button class="filter-btn active" onclick="filterOrderPeriod('today',this)">Днес</button>
+      <button class="filter-btn" onclick="filterOrderPeriod('yesterday',this)">Вчера</button>
+      <button class="filter-btn" onclick="filterOrderPeriod('week',this)">Седмица</button>
+      <button class="filter-btn" onclick="filterOrderPeriod('month',this)">Месец</button>
+      <input class="search-input" id="orderSearch" placeholder="🔍 Търси по ime, телефон..." oninput="searchOrders()">
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Сума</th><th>Статус</th><th>Час</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody"><tr><td colspan="7" class="empty-state">⏳ Зареждане...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ FINANCE ════ -->
+  <div class="page" id="page-finance">
+    <div class="filters-bar">
+      <button class="filter-btn active" onclick="setFinancePeriod('month',this)">Месец</button>
+      <button class="filter-btn" onclick="setFinancePeriod('week',this)">Седмица</button>
+      <button class="filter-btn" onclick="setFinancePeriod('day',this)">Днес</button>
+    </div>
+    <div class="kpi-row" style="margin-bottom:20px">
+      <div class="kpi-card green"><div class="kpi-label">Оборот</div><div class="kpi-val" id="fin-rev">€0</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Разходи</div><div class="kpi-val" id="fin-exp">€0</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Чиста печалба</div><div class="kpi-val" id="fin-profit">€0</div></div>
+    </div>
+    <div class="finance-grid">
+      <div class="finance-card">
+        <div class="fc-title">💰 Оборот (смени)<button class="fc-add-btn" onclick="openShiftsAll()">Виж всички</button></div>
+        <div class="expense-list" id="finShiftsList"></div>
+      </div>
+      <div class="finance-card">
+        <div class="fc-title">💸 Разходи<button class="fc-add-btn" onclick="openAddExpense()">+ Добави</button></div>
+        <div class="expense-list" id="finExpensesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ANALYTICS ════ -->
+  <div class="page" id="page-analytics">
+    <div class="kpi-row">
+      <div class="kpi-card blue"><div class="kpi-label">Средна поръчка</div><div class="kpi-val" id="avg-order">€0</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Общо клиенти</div><div class="kpi-val" id="total-clients">0</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Завършени</div><div class="kpi-val" id="total-done">0</div></div>
+    </div>
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <div class="chart-title">🏆 Топ продукти по брой</div>
+        <div id="topProductsList" class="top-list"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="chart-title">📅 Топ 10 дни по оборот</div>
+        <div id="topDaysList" class="top-list"></div>
+      </div>
+    </div>
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <div class="chart-title">🚶 Взимане vs 🛵 Доставка</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="chartDelivery"></canvas></div>
+      </div>
+      <div class="analytics-card">
+        <div class="chart-title">⏰ Най-силни часове</div>
+        <div id="topHoursList" class="top-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ EMPLOYEES ════ -->
+  <div class="page" id="page-employees">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="fc-add-btn" style="padding:8px 16px;font-size:0.85rem" onclick="openAddEmployee()">+ Добави служител</button>
+    </div>
+    <div class="emp-grid" id="empGrid"><div class="empty-state">⏳ Зареждане...</div></div>
+
+    <div class="section-title" style="margin-top:28px">📅 График за смени</div>
+    <div class="filters-bar">
+      <button class="filter-btn active" onclick="setSchedulePeriod('week',this)">Седмица</button>
+      <button class="filter-btn" onclick="setSchedulePeriod('month',this)">Месец</button>
+      <button class="filter-btn" onclick="setSchedulePeriod('today',this)">Днес</button>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Служител</th><th>Дата</th><th>Начало</th><th>Край</th><th>Часове</th></tr></thead>
+        <tbody id="scheduleTableBody"><tr><td colspan="5" class="empty-state">⏳ Зареждане...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="margin-top:20px">⏱ Общо часове по служител</div>
+    <div class="analytics-card">
+      <div id="scheduleTotals" class="top-list"></div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<!-- ════ ORDER DETAIL MODAL ════ -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-title">📋 Детайли поръчка</div>
+    <div id="orderModalContent"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('orderModal')">Затвори</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADD EXPENSE MODAL ════ -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal">
+    <div class="modal-title">💸 Добави разход</div>
+    <div class="form-group"><label class="form-label">Дата</label><input type="date" class="form-input" id="exp-date"></div>
+    <div class="form-group"><label class="form-label">Категория</label>
+      <select class="form-select" id="exp-cat">
+        <option value="Продукти">Продукти</option>
+        <option value="Заплати">Заплати</option>
+        <option value="Наем">Наем</option>
+        <option value="Ток">Ток</option>
+        <option value="Вода">Вода</option>
+        <option value="Интернет">Интернет</option>
+        <option value="Реклама">Реклама</option>
+        <option value="Гориво">Гориво</option>
+        <option value="Други">Други</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Описание</label><input type="text" class="form-input" id="exp-desc" placeholder="Детайли"></div>
+    <div class="form-group"><label class="form-label">Сума (€)</label><input type="number" class="form-input" id="exp-amount" step="0.01" min="0"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('expenseModal')">Откажи</button>
+      <button class="btn-primary" onclick="saveExpense()">Запази</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADD EMPLOYEE MODAL ════ -->
+<div class="modal-overlay" id="employeeModal">
+  <div class="modal">
+    <div class="modal-title">👤 Добави служител</div>
+    <div class="form-group"><label class="form-label">Ime</label><input type="text" class="form-input" id="emp-name" placeholder="Анелия"></div>
+    <div class="form-group"><label class="form-label">Длъжност</label><input type="text" class="form-input" id="emp-role" placeholder="Касиер"></div>
+    <div class="form-group"><label class="form-label">Телефон</label><input type="text" class="form-input" id="emp-phone" placeholder="0888 000 000"></div>
+    <div class="form-group"><label class="form-label">Дневна надница (€)</label><input type="number" class="form-input" id="emp-wage" step="0.01" min="0"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('employeeModal')">Откажи</button>
+      <button class="btn-primary" onclick="saveEmployee()">Запази</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav" style="display:none" id="mobileNav">
+  <button class="mn-item active" id="mn-dashboard" onclick="showPage('dashboard',this,true)">
+    <span class="mn-icon">📊</span>Dashboard
+  </button>
+  <button class="mn-item" id="mn-orders" onclick="showPage('orders',this,true)">
+    <span class="mn-icon">📋</span>Поръчки
+  </button>
+  <button class="mn-item" id="mn-finance" onclick="showPage('finance',this,true)">
+    <span class="mn-icon">💰</span>Финанси
+  </button>
+  <button class="mn-item" id="mn-analytics" onclick="showPage('analytics',this,true)">
+    <span class="mn-icon">📈</span>Анализ
+  </button>
+  <button class="mn-item" id="mn-employees" onclick="showPage('employees',this,true)">
+    <span class="mn-icon">👥</span>Екип
+  </button>
+</nav>
+
+<script src="supabaseClient.js"></script>
+<script>
+// ═══════════════════════════════
+// AUTH CHECK
+// ═══════════════════════════════
+const BOSS_EMAIL = 'luka@dunermaster.bg';
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session || session.user.email !== BOSS_EMAIL) {
+    window.location.href = 'admin.html';
+  }
+})();
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'admin.html';
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+const pageTitles = { dashboard:'Dashboard', orders:'Поръчки', finance:'Финанси', analytics:'Анализ', employees:'Служители' };
+
+function showPage(page, btn, isMobile) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mn-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Sync both navs
+  const sideBtn = document.querySelector(`.sb-item[onclick*="${page}"]`);
+  const mobBtn  = document.getElementById('mn-' + page);
+  if (sideBtn) sideBtn.classList.add('active');
+  if (mobBtn)  mobBtn.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  window.scrollTo(0, 0);
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'orders') loadOrders();
+  if (page === 'finance') loadFinance();
+  if (page === 'analytics') loadAnalytics();
+  if (page === 'employees') { loadEmployees(); loadSchedule(); }
+}
+
+// Date display
+const now = new Date();
+document.getElementById('dateDisplay').textContent = now.toLocaleDateString('bg-BG', { weekday:'long', day:'numeric', month:'long' });
+
+// ═══════════════════════════════
+// HELPERS
+// ═══════════════════════════════
+function getDateRange(period) {
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  if (period === 'today') return { from: fmt(today), to: fmt(today) };
+  if (period === 'yesterday') { const d = new Date(today); d.setDate(d.getDate()-1); return { from: fmt(d), to: fmt(d) }; }
+  if (period === 'week') { const d = new Date(today); d.setDate(d.getDate()-6); return { from: fmt(d), to: fmt(today) }; }
+  if (period === 'month') return { from: fmt(today).slice(0,7)+'-01', to: fmt(today) };
+  return { from: fmt(today).slice(0,7)+'-01', to: fmt(today) };
+}
+
+function fmt(d) { return new Date(d).toISOString().split('T')[0]; }
+function today() { return fmt(new Date()); }
+function weekStart() { const d = new Date(); d.setDate(d.getDate()-6); return fmt(d); }
+function monthStart() { return today().slice(0,7)+'-01'; }
+
+let toastTimer2;
+function showToast(msg, color='#2ed573') {
+  const t = document.getElementById('bossToast');
+  t.textContent = msg; t.style.background = color;
+  t.classList.add('show');
+  clearTimeout(toastTimer2);
+  toastTimer2 = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+
+// ═══════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════
+let revenueChart, hoursChart, productsChart, deliveryChart;
+
+async function loadDashboard() {
+  try {
+  const td = today(), ws = weekStart(), ms = monthStart();
+
+  const [{ data: allOrders }, { data: allShifts }, { data: allExpenses }] = await Promise.all([
+    sb.from('orders').select('*').gte('created_at', ms + 'T00:00:00'),
+    sb.from('shifts').select('*').gte('date', ms),
+    sb.from('expenses').select('*').gte('date', ms)
+  ]);
+
+  const orders = allOrders || [];
+  const shifts = allShifts || [];
+  const expenses = allExpenses || [];
+
+  // Today
+  const todayOrders = orders.filter(o => o.created_at?.startsWith(td));
+  const todayShifts = shifts.filter(s => s.date === td);
+  const revToday = todayShifts.reduce((s,r) => s + parseFloat(r.amount), 0);
+  const onlineToday = todayOrders.filter(o=>o.status==='done').reduce((s,o)=>s+parseFloat(o.total),0);
+  document.getElementById('kpi-rev-today').textContent = '€' + revToday.toFixed(0);
+  document.getElementById('kpi-ord-today').textContent = todayOrders.length;
+  document.getElementById('kpi-online-today').textContent = '€' + onlineToday.toFixed(0);
+
+  // Week
+  const weekOrders = orders.filter(o => o.created_at?.split('T')[0] >= ws);
+  const weekShifts = shifts.filter(s => s.date >= ws);
+  const revWeek = weekShifts.reduce((s,r) => s + parseFloat(r.amount), 0);
+  document.getElementById('kpi-rev-week').textContent = '€' + revWeek.toFixed(0);
+  document.getElementById('kpi-ord-week').textContent = weekOrders.length;
+
+  // Month
+  const revMonth = shifts.reduce((s,r) => s + parseFloat(r.amount), 0);
+  const expMonth = expenses.reduce((s,r) => s + parseFloat(r.amount), 0);
+  const profit = revMonth - expMonth;
+  document.getElementById('kpi-rev-month').textContent = '€' + revMonth.toFixed(0);
+  document.getElementById('kpi-exp-month').textContent = '€' + expMonth.toFixed(0);
+  document.getElementById('kpi-profit-month').textContent = '€' + profit.toFixed(0);
+  document.getElementById('kpi-profit-month').style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('kpi-ord-month').textContent = orders.length;
+
+  // Charts
+  buildRevenueChart(shifts);
+  buildHoursChart(orders);
+  buildProductsChart(orders);
+  } catch(e) { console.error('Dashboard error:', e); }
+}
+
+function buildRevenueChart(shifts) {
+  const days = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const k = d.toISOString().split('T')[0];
+    days[k] = 0;
+  }
+  (shifts || []).forEach(s => { if (s.date && days[s.date] !== undefined) days[s.date] += parseFloat(s.amount || 0); });
+
+  const ctx = document.getElementById('chartRevenue').getContext('2d');
+  if (revenueChart) revenueChart.destroy();
+  revenueChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Object.keys(days).map(d => d.slice(5)),
+      datasets: [{ data: Object.values(days), borderColor: '#e84118', backgroundColor: 'rgba(232,65,24,0.1)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color:'#666', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color:'#666', callback: v => '€'+v }, grid: { color: 'rgba(255,255,255,0.04)' } } } }
+  });
+}
+
+function buildHoursChart(orders) {
+  const hours = {};
+  for (let h = 10; h <= 22; h++) hours[h+':00'] = 0;
+  orders.forEach(o => {
+    const h = new Date(o.created_at).getHours();
+    if (hours[h+':00'] !== undefined) hours[h+':00']++;
+  });
+  const ctx = document.getElementById('chartHours').getContext('2d');
+  if (hoursChart) hoursChart.destroy();
+  hoursChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: Object.keys(hours), datasets: [{ data: Object.values(hours), backgroundColor: 'rgba(74,158,255,0.7)', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color:'#666' }, grid: { display: false } }, y: { ticks: { color:'#666' }, grid: { color: 'rgba(255,255,255,0.04)' } } } }
+  });
+}
+
+function buildProductsChart(orders) {
+  const counts = {};
+  orders.forEach(o => {
+    try {
+      const items = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]');
+      items.forEach(i => { if(i && i.name) counts[i.name] = (counts[i.name] || 0) + (i.qty || 1); });
+    } catch(e) {}
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const ctx = document.getElementById('chartProducts').getContext('2d');
+  if (productsChart) productsChart.destroy();
+  productsChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: sorted.map(([n])=>n), datasets: [{ data: sorted.map(([,v])=>v), backgroundColor: 'rgba(240,165,0,0.7)', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color:'#666' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color:'#aaa', font: { size: 11 } }, grid: { display: false } } } }
+  });
+}
+
+// ═══════════════════════════════
+// ORDERS
+// ═══════════════════════════════
+let allOrdersCache = [];
+let orderPeriod = 'today';
+
+async function loadOrders() {
+  const { from, to } = getDateRange(orderPeriod);
+  const { data } = await sb.from('orders').select('*')
+    .gte('created_at', from + 'T00:00:00')
+    .lte('created_at', to + 'T23:59:59')
+    .order('created_at', { ascending: false });
+  allOrdersCache = data || [];
+  renderOrdersTable(allOrdersCache);
+}
+
+function renderOrdersTable(orders) {
+  const body = document.getElementById('ordersTableBody');
+  if (!orders.length) { body.innerHTML = '<tr><td colspan="7" class="empty-state">Няма поръчки</td></tr>'; return; }
+  body.innerHTML = orders.map(o => {
+    const time = new Date(o.created_at).toLocaleTimeString('bg-BG', { hour:'2-digit', minute:'2-digit' });
+    const date = o.created_at?.split('T')[0];
+    const dtype = o.delivery_type === 'delivery' ? '🛵' : '🚶';
+    return `<tr onclick="showOrderDetail('${o.id}')">
+      <td style="color:var(--orange);font-weight:700">${o.order_number}</td>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td>${dtype} ${o.delivery_type === 'delivery' ? 'Доставка' : 'Вземане'}</td>
+      <td style="color:var(--green);font-weight:700">€${o.total}</td>
+      <td><span class="status-badge ${o.status === 'done' ? 's-done' : 's-new'}">${o.status === 'done' ? 'Завършена' : 'Нова'}</span></td>
+      <td style="color:var(--text2)">${date} ${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterOrderPeriod(p, btn) {
+  orderPeriod = p;
+  document.querySelectorAll('#page-orders .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadOrders();
+}
+
+function searchOrders() {
+  const q = document.getElementById('orderSearch').value.toLowerCase();
+  const filtered = allOrdersCache.filter(o =>
+    o.name?.toLowerCase().includes(q) ||
+    o.phone?.includes(q) ||
+    o.order_number?.toLowerCase().includes(q)
+  );
+  renderOrdersTable(filtered);
+}
+
+async function showOrderDetail(id) {
+  const order = allOrdersCache.find(o => o.id === id);
+  if (!order) return;
+  const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]');
+  const time = new Date(order.created_at).toLocaleString('bg-BG');
+  document.getElementById('orderModalContent').innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--orange)">${order.order_number}</div>
+      <div style="font-size:0.8rem;color:var(--text2)">${time}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.85rem">
+      <div><span style="color:var(--text2)">Клиент:</span> <strong>${order.name}</strong></div>
+      <div><span style="color:var(--text2)">Тел:</span> <strong>${order.phone}</strong></div>
+      <div><span style="color:var(--text2)">Тип:</span> <strong>${order.delivery_type === 'delivery' ? '🛵 Доставка' : '🚶 Вземане'}</strong></div>
+      <div><span style="color:var(--text2)">Час:</span> <strong>${order.pickup_time}</strong></div>
+      ${order.address ? `<div style="grid-column:1/-1"><span style="color:var(--text2)">Адрес:</span> <strong>${order.address}</strong></div>` : ''}
+      ${order.note ? `<div style="grid-column:1/-1"><span style="color:var(--text2)">Бележка:</span> <strong>${order.note}</strong></div>` : ''}
+    </div>
+    <div class="order-detail-items">
+      ${items.map(i => `<div class="odi-row"><span>${i.name} x${i.qty}</span><span style="color:var(--orange)">€${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;font-weight:800;font-size:1rem;border-top:1px solid var(--border)">
+      <span>Общо</span><span style="color:var(--green)">€${order.total}</span>
+    </div>`;
+  openModal('orderModal');
+}
+
+// ═══════════════════════════════
+// FINANCE
+// ═══════════════════════════════
+let financePeriod = 'month';
+
+async function loadFinance() {
+  const { from, to } = getDateRange(financePeriod);
+  const [{ data: shifts }, { data: expenses }] = await Promise.all([
+    sb.from('shifts').select('*').gte('date', from).lte('date', to).order('date', { ascending: false }),
+    sb.from('expenses').select('*').gte('date', from).lte('date', to).order('date', { ascending: false })
+  ]);
+
+  const rev = (shifts||[]).reduce((s,r) => s + parseFloat(r.amount), 0);
+  const exp = (expenses||[]).reduce((s,r) => s + parseFloat(r.amount), 0);
+  const profit = rev - exp;
+
+  document.getElementById('fin-rev').textContent = '€' + rev.toFixed(2);
+  document.getElementById('fin-exp').textContent = '€' + exp.toFixed(2);
+  document.getElementById('fin-profit').textContent = '€' + profit.toFixed(2);
+  document.getElementById('fin-profit').style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const typeLabel = { morning:'🌅 Първа смяна', evening:'🌆 Втора смяна', fullday:'☀️ Цял ден' };
+  document.getElementById('finShiftsList').innerHTML = (shifts||[]).length === 0
+    ? '<div class="empty-state">Няма записи</div>'
+    : (shifts||[]).map(s => `
+      <div class="expense-item">
+        <div class="ei-info">
+          <div class="ei-desc">${typeLabel[s.shift_type]||s.shift_type}</div>
+          <div class="ei-meta">${s.date} · ${s.created_by}${s.note?' · '+s.note:''}</div>
+        </div>
+        <div class="ei-amount" style="color:var(--green)">+€${parseFloat(s.amount).toFixed(2)}</div>
+      </div>`).join('');
+
+  document.getElementById('finExpensesList').innerHTML = (expenses||[]).length === 0
+    ? '<div class="empty-state">Няма разходи</div>'
+    : (expenses||[]).map(e => `
+      <div class="expense-item">
+        <div class="ei-info">
+          <div class="ei-desc">${e.description}</div>
+          <div class="ei-meta">${e.date} · ${e.created_by}</div>
+          <span class="cat-badge">${e.category||'Други'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="ei-amount">-€${parseFloat(e.amount).toFixed(2)}</div>
+          <button class="ei-del" onclick="deleteExpense('${e.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+}
+
+function setFinancePeriod(p, btn) {
+  financePeriod = p;
+  document.querySelectorAll('#page-finance .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadFinance();
+}
+
+function openAddExpense() {
+  document.getElementById('exp-date').value = today();
+  document.getElementById('exp-desc').value = '';
+  document.getElementById('exp-amount').value = '';
+  openModal('expenseModal');
+}
+
+async function saveExpense() {
+  const date = document.getElementById('exp-date').value;
+  const cat  = document.getElementById('exp-cat').value;
+  const desc = document.getElementById('exp-desc').value.trim();
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  if (!date || !desc || !amount || amount <= 0) { showToast('⚠️ Попълни всички полета!', '#f0a500'); return; }
+  const { error } = await sb.from('expenses').insert([{ date, category: cat, description: desc, amount, created_by: 'Лука' }]);
+  if (error) { showToast('❌ Грешка!', 'var(--red)'); return; }
+  closeModal('expenseModal');
+  showToast('✅ Разходът е записан!');
+  loadFinance();
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Изтриване на разхода?')) return;
+  await sb.from('expenses').delete().eq('id', id);
+  loadFinance();
+}
+
+// ═══════════════════════════════
+// ANALYTICS
+// ═══════════════════════════════
+async function loadAnalytics() {
+  const { data: orders } = await sb.from('orders').select('*');
+  const all = orders || [];
+
+  // KPIs
+  const done = all.filter(o => o.status === 'done');
+  const avg = done.length ? done.reduce((s,o) => s + parseFloat(o.total), 0) / done.length : 0;
+  const clients = new Set(all.map(o => o.phone)).size;
+  document.getElementById('avg-order').textContent = '€' + avg.toFixed(2);
+  document.getElementById('total-clients').textContent = clients;
+  document.getElementById('total-done').textContent = done.length;
+
+  // Top products
+  const counts = {};
+  all.forEach(o => {
+    try {
+      const items = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]');
+      items.forEach(i => { if(i && i.name) counts[i.name] = (counts[i.name] || 0) + (i.qty || 1); });
+    } catch(e) {}
+  });
+  const topProds = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const maxProd = topProds[0]?.[1] || 1;
+  document.getElementById('topProductsList').innerHTML = topProds.map(([name, cnt], i) => `
+    <div class="top-item">
+      <span class="top-rank">${i+1}</span>
+      <span class="top-name" style="font-size:0.78rem;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
+      <div class="top-bar-bg"><div class="top-bar-fill" style="width:${(cnt/maxProd*100).toFixed(0)}%"></div></div>
+      <span class="top-count">${cnt}</span>
+    </div>`).join('');
+
+  // Top days
+  const dayRevs = {};
+  all.forEach(o => {
+    const d = o.created_at?.split('T')[0];
+    if (d) dayRevs[d] = (dayRevs[d] || 0) + parseFloat(o.total);
+  });
+  const topDays = Object.entries(dayRevs).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const maxDay = topDays[0]?.[1] || 1;
+  document.getElementById('topDaysList').innerHTML = topDays.map(([date, rev], i) => `
+    <div class="top-item">
+      <span class="top-rank">${i+1}</span>
+      <span class="top-name">${date}</span>
+      <div class="top-bar-bg"><div class="top-bar-fill" style="width:${(rev/maxDay*100).toFixed(0)}%;background:var(--green)"></div></div>
+      <span class="top-count" style="color:var(--green)">€${rev.toFixed(0)}</span>
+    </div>`).join('');
+
+  // Delivery chart
+  const pickup = all.filter(o => o.delivery_type !== 'delivery').length;
+  const delivery = all.filter(o => o.delivery_type === 'delivery').length;
+  const dctx = document.getElementById('chartDelivery').getContext('2d');
+  if (deliveryChart) deliveryChart.destroy();
+  deliveryChart = new Chart(dctx, {
+    type: 'doughnut',
+    data: { labels: ['🚶 Вземане', '🛵 Доставка'], datasets: [{ data: [pickup, delivery], backgroundColor: ['rgba(74,158,255,0.7)', 'rgba(232,65,24,0.7)'], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#888', font: { size: 12 } } } } }
+  });
+
+  // Top hours
+  const hourCounts = {};
+  for (let h = 10; h <= 22; h++) hourCounts[h] = 0;
+  all.forEach(o => { const h = new Date(o.created_at).getHours(); if (hourCounts[h] !== undefined) hourCounts[h]++; });
+  const topHours = Object.entries(hourCounts).sort((a,b) => b[1]-a[1]).slice(0,6);
+  const maxH = topHours[0]?.[1] || 1;
+  document.getElementById('topHoursList').innerHTML = topHours.map(([h, cnt], i) => `
+    <div class="top-item">
+      <span class="top-rank">${i+1}</span>
+      <span class="top-name">${h}:00</span>
+      <div class="top-bar-bg"><div class="top-bar-fill" style="width:${(cnt/maxH*100).toFixed(0)}%;background:var(--orange)"></div></div>
+      <span class="top-count" style="color:var(--orange)">${cnt}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+// EMPLOYEES
+// ═══════════════════════════════
+async function loadEmployees() {
+  const { data } = await sb.from('employees').select('*').order('name');
+  const emps = data || [];
+  if (!emps.length) {
+    document.getElementById('empGrid').innerHTML = '<div class="empty-state">Няма служители. Добави първия!</div>';
+    return;
+  }
+  document.getElementById('empGrid').innerHTML = emps.map(e => `
+    <div class="emp-card">
+      <div class="emp-avatar">👤</div>
+      <div class="emp-name">${e.name}</div>
+      <div class="emp-role">${e.role || 'Служител'}</div>
+      <div class="emp-stat"><span class="emp-stat-label">Телефон</span><span class="emp-stat-val">${e.phone || '—'}</span></div>
+      <div class="emp-stat"><span class="emp-stat-label">Дневна надница</span><span class="emp-stat-val" style="color:var(--green)">€${parseFloat(e.daily_wage||0).toFixed(2)}</span></div>
+    </div>`).join('');
+}
+
+// ── EMPLOYEE SCHEDULE ──
+let schedulePeriod = 'week';
+
+function setSchedulePeriod(p, btn) {
+  schedulePeriod = p;
+  document.querySelectorAll('#page-employees .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadSchedule();
+}
+
+async function loadSchedule() {
+  const { from, to } = getDateRange(schedulePeriod);
+  const { data } = await sb.from('employee_schedule').select('*')
+    .gte('date', from).lte('date', to).order('date', { ascending: false });
+  const rows = data || [];
+
+  const body = document.getElementById('scheduleTableBody');
+  if (body) {
+    body.innerHTML = rows.length === 0
+      ? '<tr><td colspan="5" class="empty-state">Няма записани смени за този период</td></tr>'
+      : rows.map(s => `<tr>
+          <td style="font-weight:700;color:#fff">👤 ${s.employee_name}</td>
+          <td style="color:var(--text2)">${s.date}</td>
+          <td>${s.start_time}</td>
+          <td>${s.end_time}</td>
+          <td style="color:var(--blue);font-weight:700">${s.hours_worked} ч.</td>
+        </tr>`).join('');
+  }
+
+  // Totals per employee
+  const totals = {};
+  rows.forEach(s => { totals[s.employee_name] = (totals[s.employee_name] || 0) + parseFloat(s.hours_worked || 0); });
+  const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+  const maxT = sorted[0]?.[1] || 1;
+  const totalsEl = document.getElementById('scheduleTotals');
+  if (totalsEl) {
+    totalsEl.innerHTML = sorted.length === 0
+      ? '<div class="empty-state">Няма данни</div>'
+      : sorted.map(([name, h]) => `
+        <div class="top-item">
+          <span class="top-name" style="min-width:110px;color:#fff;font-weight:700">${name}</span>
+          <div class="top-bar-bg"><div class="top-bar-fill" style="width:${(h/maxT*100).toFixed(0)}%;background:var(--blue)"></div></div>
+          <span class="top-count" style="color:var(--blue)">${h.toFixed(1)} ч.</span>
+        </div>`).join('');
+  }
+}
+
+function openAddEmployee() {
+  openModal('employeeModal');
+}
+
+async function saveEmployee() {
+  const name  = document.getElementById('emp-name').value.trim();
+  const role  = document.getElementById('emp-role').value.trim();
+  const phone = document.getElementById('emp-phone').value.trim();
+  const wage  = parseFloat(document.getElementById('emp-wage').value) || 0;
+  if (!name) { showToast('⚠️ Въведи ime!', '#f0a500'); return; }
+  const { error } = await sb.from('employees').insert([{ name, role, phone, daily_wage: wage }]);
+  if (error) { showToast('❌ Грешка: ' + error.message, 'var(--red)'); return; }
+  closeModal('employeeModal');
+  showToast('✅ Служителят е добавен!');
+  loadEmployees();
+}
+
+// ═══════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════
+const notifications = [];
+
+function toggleNotif() {
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.notif-btn') && !e.target.closest('.notif-panel')) {
+    document.getElementById('notifPanel').classList.remove('open');
+  }
+});
+
+function playBossSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.6, 1.2].forEach(startTime => {
+      [1046, 1318].forEach((freq, i) => {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        const t = ctx.currentTime + startTime + i * 0.12;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.4, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+    });
+  } catch(e) {}
+}
+
+// Realtime new orders
+sb.channel('boss-orders')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, p => {
+    const o = p.new;
+    playBossSound();
+    notifications.unshift({ icon:'🛒', title:'Нова онлайн поръчка', text:`${o.order_number} · ${o.name} · €${o.total}`, time: new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}) });
+    renderNotifs();
+    document.getElementById('notifDot').style.display = 'block';
+    showToast('🛒 Нова поръчка ' + o.order_number, '#e84118');
+  })
+  .subscribe();
+
+function renderNotifs() {
+  const list = document.getElementById('notifList');
+  if (!notifications.length) { list.innerHTML = '<div class="empty-state">Няма известия</div>'; return; }
+  list.innerHTML = notifications.slice(0,10).map(n => `
+    <div class="notif-item">
+      <div class="ni-icon">${n.icon}</div>
+      <div><div class="ni-text"><strong>${n.title}</strong>${n.text}</div><div class="ni-time">${n.time}</div></div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+loadDashboard();
+</script>
+</body>
+</html>
